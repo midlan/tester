@@ -113,8 +113,13 @@ class Environment
 			return false;
 		});
 
-		register_shutdown_function(function (): void {
+		$extra = fopen('php://fd/3', 'w');
+
+		register_shutdown_function(function () use ($extra): void {
 			Assert::$onFailure = [__CLASS__, 'handleException'];
+
+			fwrite($extra, 'Asserts: ' . Assert::$counter);
+			fclose($extra);
 
 			$error = error_get_last();
 			register_shutdown_function(function () use ($error): void {

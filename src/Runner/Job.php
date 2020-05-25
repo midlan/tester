@@ -49,6 +49,9 @@ class Job
 	/** @var resource|null */
 	private $stderr;
 
+	/** @var resource|null */
+	private $extra;
+
 	/** @var int */
 	private $exitCode = self::CODE_NONE;
 
@@ -109,6 +112,7 @@ class Job
 				['pipe', 'r'],
 				['pipe', 'w'],
 				['pipe', 'w'],
+				['pipe', 'w'],
 			],
 			$pipes,
 			dirname($this->test->getFile()),
@@ -120,7 +124,7 @@ class Job
 			putenv($name);
 		}
 
-		[$stdin, $this->stdout, $stderr] = $pipes;
+		[$stdin, $this->stdout, $stderr, $this->extra] = $pipes;
 		fclose($stdin);
 		if ($flags & self::RUN_COLLECT_ERRORS) {
 			$this->stderr = $stderr;
@@ -163,6 +167,10 @@ class Job
 		if ($this->stderr) {
 			fclose($this->stderr);
 		}
+
+		var_dump(stream_get_contents($this->extra));
+
+		fclose($this->extra);
 		$code = proc_close($this->proc);
 		$this->exitCode = $code === self::CODE_NONE ? $status['exitcode'] : $code;
 
