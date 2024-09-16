@@ -10,6 +10,17 @@ declare(strict_types=1);
 namespace Tester;
 
 
+$extra = @fopen('php://fd/3', 'w');
+
+if ($extra) {
+
+    register_shutdown_function(function () use ($extra): void {
+        fwrite($extra, 'Asserts: ' . Assert::$counter);
+        fclose($extra);
+    });
+}
+
+
 /**
  * Assertion test helpers.
  */
